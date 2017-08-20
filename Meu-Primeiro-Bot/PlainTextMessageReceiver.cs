@@ -6,6 +6,7 @@ using Takenet.MessagingHub.Client;
 using Takenet.MessagingHub.Client.Listener;
 using Takenet.MessagingHub.Client.Sender;
 using System.Diagnostics;
+using Lime.Messaging.Contents;
 
 namespace MeuPrimeiroBot
 {
@@ -18,9 +19,26 @@ namespace MeuPrimeiroBot
             _sender = sender;
         }
 
+        internal static MediaLink CreateMediaLink(string url)
+        {
+            var imageUri = new Uri(url);
+
+            var mediaLink = new MediaLink
+            {
+                Type = new MediaType("image", "gif"),
+                PreviewType = new MediaType("image", "gif"),
+                PreviewUri = imageUri,
+                Uri = imageUri,
+                Size = 0
+            };
+
+            return mediaLink;
+        }
+
         public async Task ReceiveAsync(Message message, CancellationToken cancellationToken)
         {
             Trace.TraceInformation($"From: {message.From} \tContent: {message.Content}");
+
             if (message.Content.ToString().ToUpper().Contains("COMEÇAR") || message.Content.ToString().ToUpper().Contains("GET STARTED"))
             {
                 await _sender.SendMessageAsync("Olá! Eu sou um bot chamado Bot!", message.From, cancellationToken);
@@ -44,6 +62,11 @@ namespace MeuPrimeiroBot
                 Random rnd = new Random();
                 int i = rnd.Next(0, jokes.Length);
                 await _sender.SendMessageAsync(jokes[i], message.From, cancellationToken);
+            }
+            else if (message.Content.ToString().ToUpper().Contains("DRACARYS") || message.Content.ToString().ToUpper().Contains("GAME OF THRONES"))
+            {
+                var mediaLink = CreateMediaLink("https://media.giphy.com/media/BiDcp9Tat2i40/giphy.gif");
+                await _sender.SendMessageAsync(mediaLink, message.From, cancellationToken);
             }
             else if (message.Content.ToString().ToUpper().Contains("OLÁ") || message.Content.ToString().ToUpper().Contains("OI"))
             {
